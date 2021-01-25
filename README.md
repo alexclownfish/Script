@@ -1,2 +1,2 @@
 # python
-python scripts
+学习python中所遇到的脚本案例，和自己写的脚本案例，大佬勿喷
