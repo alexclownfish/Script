@@ -1,0 +1,27 @@
+#!/usr/bin/expect
+#最多不超过10分钟，命令执行持续的时间要比这个时间段，否则会提前退出
+set timeout 600 
+set RUN_PATH "/opt/test/"
+set username [lindex $argv 0] 
+set password [lindex $argv 1] 
+set hostname [lindex $argv 2] 
+
+ 
+spawn ssh $username@$hostname
+expect {
+"yes/no"
+{send "yes\r"; exp_continue;}  
+"password:"
+{send "$password\r";}
+"Password:"
+{send "$password\r";}
+}
+#exp_continue 动作，表示expect 的匹配从头重新开始匹配
+#expect timeout {puts "expect was timeout";return}
+puts "\n************************************************************************************"
+puts "\n		 LOGIN ${hostname} SUCCESS  START TO EXCE COMMAND	"
+puts "\n************************************************************************************"
+ 
+expect "root@*"  {send "cd ${RUN_PATH}\r"}
+expect "root@*"  {send "bash test.sh\r"}
+expect "root@*"  {send "exit\r"}
