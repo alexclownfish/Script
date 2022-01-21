@@ -26,7 +26,7 @@ then
             ping -c 2 -w 2 $i &>/dev/null
             if [ $? -eq 0 ]
             then
-                echo "$i is active!"
+                echo $i is active! >> ./ip_active.txt
             else
                 echo $i is down! >> ./ip_down.txt
             fi
@@ -46,7 +46,7 @@ then
             ping -c 2 -w 2 $i &>/dev/null
             if [ $? -eq 0 ]
             then
-                echo "$i is active!"
+                echo $i is active! >> ./ip_active.txt
             else
                 echo $i is down! >> ./ip_down.txt
             fi
@@ -57,4 +57,4 @@ then
 else
     echo "Your network card is neither eth0 nor ens33. Please check your network card information"
 fi
-
+echo "IP扫描完成   存活ip：./ip_active.txt || 死亡ip：./ip_down.txt"
