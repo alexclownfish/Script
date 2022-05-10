@@ -11,7 +11,7 @@
 
 # 2，备份。
 ## 1，开启 bin-log 记录。
-执行增量备份的前提条件是 MySQL 打开binlog日志功能，在my.cnf中加入
+执行增量备份的前提条件是 MySQL 打开binlog日志功能，在my.cnf中加入；我这里测试使用的是mysql8.0.22单机版默认已开启bin-log
 ```
 log-bin=/data/mysql/mysql-bin  #“log-bin=”后的字符串为日志记载目录，如果不指定位置的话，默认在mysql的data目录下。
 ```
