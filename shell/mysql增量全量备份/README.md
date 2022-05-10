@@ -18,14 +18,16 @@ log-bin=/data/mysql/mysql-bin  #“log-bin=”后的字符串为日志记载目�
 ## 2，首先是全量备份的脚本。
 ```
 #!/bin/bash
-dumpdate=$(date +%H%M%S)
-filedate=$(date +%y%m%d)
-mysqldump=/usr/local/mysql/bin/mysqldump
-mulu=/backup/sqlbackup/all/$filedate
+dumpdate=$(date +%H%M%S)        #备份sql文件日期（时分秒）及文件名
+filedate=$(date +%y%m%d)        #所生成备份目录的日期（年月日）
+#mysqldump=/usr/local/mysql/bin/mysqldump        #mysqldump工具所在绝对路径
+mulu=/opt/mysql_bak/sqlbackup/whole/$filedate          #生成备份目录路径
+#判断备份目录是否存在，存在则执行mysqldump，不存在则创建目录
 if [ ! -d $mulu  ];then
  mkdir -p $mulu
 fi
-$mysqldump  --quick --events --all-databases --flush-logs --delete-master-logs --single-transaction > ${mulu}/all${dumpdate}.sql
+#执行备份命令
+mysqldump -pywz0207. --quick --events --all-databases --flush-logs --delete-master-logs --single-transaction > ${mulu}/whole-${dumpdate}.sql
 sleep 5
 ```
 参数：
@@ -62,32 +64,34 @@ image
 ```
 #!/bin/bash
 export LANG=en_US.UTF-8
-BakDir=/backup/sqlbackup/add
-LogFile=$BakDir/binlog.log
-BinDir=/usr/local/mysql/data
-BinFile=/usr/local/mysql/data/mysql-bin.index
-mysqladmin=/usr/local/mysql/bin/mysqladmin
-$mysqladmin  flush-logs
-#这个是用于产生新的mysql-bin.00000*文件
-Counter=`wc -l $BinFile |awk '{print $1}'`
+filedate=$(date +%y%m%d)
+BackDir=/opt/mysql_bak/sqlbackup/incremental/$filedate   #备份bin-log文件路径
+LogFile=$BackDir/binlog.log      #日志文件路径
+BinDir=/var/lib/mysql    #bin-log文件所在目录
+BinFile=/var/lib/mysql/binlog.index     #bin-log索引文件
+#mysqladmin=/usr/local/mysql/bin/mysqladmin              #mysqladmin命令绝对路径
+if [ ! -d $BackDir  ];then
+ mkdir -p $BackDir
+fi
+mysqladmin  flush-logs -pywz0207.        #这个是用于产生新的mysql-bin.00000*文件，开始导出之前刷新日志。请注意：假如一次导出多个数据库(使用选项–databases或者–all-databases)，将会逐个数据库刷新日志写入binlog
+Counter=`wc -l $BinFile |awk '{print $1}'`      #统计bin-log索引文件mysql-bin.index内bin-log文件个数
 NextNum=0
 #这个for循环用于比对$Counter,$NextNum这两个值来确定文件是不是存在或最新的。
 for file in `cat $BinFile`
 do
-    base=`basename $file`
-    #basename用于截取mysql-bin.00000*文件名，去掉./mysql-bin.000005前面的./
+    base=`basename $file`       #basename用于截取mysql-bin.00000*文件名，去掉./mysql-bin.000005前面的./
     NextNum=`expr $NextNum + 1`
     if [ $NextNum -eq $Counter ]
     then
         echo $base skip! >> $LogFile
     else
-        dest=$BakDir/$base
+        dest=$BackDir/$base
         if test -e $dest
         #test -e用于检测目标文件是否存在，存在就写exist!到$LogFile去。
         then
             echo $base exist! >> $LogFile
         else
-            cp $BinDir/$base $BakDir
+            cp $BinDir/$base $BackDir
             echo $base copying >> $LogFile
         fi
     fi
@@ -99,8 +103,8 @@ sleep 5
 
 ## 4，通过定时执行两个脚本来实现备份策略。
 方式	定时任务	备注
-增量备份	0 3 0 /bin/bash /backup/sqlbakall.sh	每周日凌晨三点备份
-全量备份	0 3 1-6 /bin/bash /backup/sqlbakadd.sh	每周一到周六凌晨三点备份
+全量备份	0 3 0 /bin/bash /opt/mysql_sh/whole_backup.sh	每周日凌晨三点备份
+增量备份	0 2 1-6 /bin/bash /opt/mysql_sh/incremental_backup.sh	每周一到周六凌晨三点备份
  
 这样就实现了数据库的增量备份。其中全量备份则使用 mysqldump 将所有的数据库导出，每周日凌晨三点执行，并会删除上周留下的 binlog（mysql-bin.00000*）。增量备份会在每周一到周六的凌晨三点执行，执行的动作是将一周生成的 binlog 复制到指定的目录。
 
@@ -129,18 +133,66 @@ mysqlbinlog master-bin.000009 | mysql -uroot -p123456
 全量备份：
 ```
 #!/bin/bash
-dumpdate=$(date +%H%M%S)
-filedate=$(date +%y%m%d)
-mysqldump=/usr/local/mysql/bin/mysqldump
-mulu=/backup/sqlbackup/all/$filedate
+dumpdate=$(date +%H%M%S)        #备份sql文件日期（时分秒）及文件名
+filedate=$(date +%y%m%d)        #所生成备份目录的日期（年月日）
+#mysqldump=/usr/local/mysql/bin/mysqldump        #mysqldump工具所在绝对路径
+mulu=/opt/mysql_bak/sqlbackup/whole/$filedate          #生成备份目录路径
+oldbinlog=/opt/mysql_bak/sqlbackup/oldbinlog
+allbinlog=/opt/mysql_bak/sqlbackup/allbinlog
+#判断备份目录是否存在，存在则执行mysqldump，不存在则创建目录
 if [ ! -d $mulu  ];then
  mkdir -p $mulu
 fi
-$mysqldump  --quick --events --all-databases --flush-logs --delete-master-logs --single-transaction > ${mulu}/all${dumpdate}.sql
+#执行备份命令
+mysqldump -pywz0207. --quick --events --all-databases --flush-logs --delete-master-logs --single-transaction > ${mulu}/whole-${dumpdate}.sql
 sleep 5
-cd /backup/sqlbackup/add/
-\mv master-bin.0000*  oldbinlog
+cd $allbinlog
+mv binlog.0000* $oldbinlog
 ```
-注意要创建这个 oldbinlog 目录。
+注意要创建这个目录。
+oldbinlog=/opt/mysql_bak/sqlbackup/oldbinlog
+allbinlog=/opt/mysql_bak/sqlbackup/allbinlog 
+
+增量备份：
+```
+#!/bin/bash
+export LANG=en_US.UTF-8
+filedate=$(date +%y%m%d)
+AllBackDir=/opt/mysql_bak/sqlbackup/allbinlog
+BackDir=/opt/mysql_bak/sqlbackup/incremental/$filedate   #备份bin-log文件路径
+LogFile=$BackDir/binlog.log      #日志文件路径
+BinDir=/var/lib/mysql    #bin-log文件所在目录
+BinFile=/var/lib/mysql/binlog.index     #bin-log索引文件
+#mysqladmin=/usr/local/mysql/bin/mysqladmin              #mysqladmin命令绝对路径
+if [ ! -d $BackDir  ];then
+ mkdir -p $BackDir
+fi
+mysqladmin  flush-logs -pywz0207.        #这个是用于产生新的mysql-bin.00000*文件，开始导出之前刷新日志。请注意：假如一次导出多个数据库(使用选项–databases或者–all-databases)，将会逐个数据库刷新日志写入binlog
+Counter=`wc -l $BinFile |awk '{print $1}'`      #统计bin-log索引文件mysql-bin.index内bin-log文件个数
+NextNum=0
+#这个for循环用于比对$Counter,$NextNum这两个值来确定文件是不是存在或最新的。
+for file in `cat $BinFile`
+do
+    base=`basename $file`       #basename用于截取mysql-bin.00000*文件名，去掉./mysql-bin.000005前面的./
+    NextNum=`expr $NextNum + 1`
+    if [ $NextNum -eq $Counter ]
+    then
+        echo $base skip! >> $LogFile
+    else
+        dest=$BackDir/$base
+        if test -e $dest
+        #test -e用于检测目标文件是否存在，存在就写exist!到$LogFile去。
+        then
+            echo $base exist! >> $LogFile
+        else
+            cp $BinDir/$base $BackDir
+            cp $BinDir/$base $AllBackDir
+            echo $base copying >> $LogFile
+        fi
+    fi
+done
+echo `date +"%Y年%m月%d日 %H:%M:%S"` Bakup succ! >> $LogFile
+sleep 5
+```
 
 这样，当服务出问题的时候，直接根据 all 目录下的全量备份进行恢复，然后根据 add 目录下的增量备份进行恢复即可。
