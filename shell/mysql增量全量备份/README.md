@@ -102,11 +102,11 @@ sleep 5
 针对 binlog 的增量备份。
 
 ## 4，通过定时执行两个脚本来实现备份策略。
-方式	定时任务	备注
-
-全量备份	0 3 1 * *  /bin/bash /opt/mysql_sh/whole_backup.sh	每月一日凌晨3点全量备份
-全量备份滚动删除 0 4 1 * * /bin/bash /opt/mysql_sh/whole_clean.sh 每月一日凌晨4点清理最老数据
-增量备份	0 2 1-6 /bin/bash /opt/mysql_sh/incremental_backup.sh	每周一到周六凌晨三点增量备份
+| 方式	| 定时任务	| 备注 |
+| ---- | ---- | ---- |
+| 全量备份	| 0 3 1 * * /bin/bash /opt/mysql_sh/whole_backup.sh |	每月一日凌晨3点全量备份 |
+| 全量备份滚动删除 | 0 4 1 * * /bin/bash /opt/mysql_sh/whole_clean.sh | 每月一日凌晨4点清理最老数据 |
+| 增量备份	| 0 2 1-6 /bin/bash /opt/mysql_sh/incremental_backup.sh	| 每周一到周六凌晨三点增量备份 |
  
 这样就实现了数据库的增量备份。其中全量备份则使用 mysqldump 将所有的数据库导出，每周日凌晨三点执行，并会删除上周留下的 binlog（mysql-bin.00000*）。增量备份会在每周一到周六的凌晨三点执行，执行的动作是将一周生成的 binlog 复制到指定的目录。
 
