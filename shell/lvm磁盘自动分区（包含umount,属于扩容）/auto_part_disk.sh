@@ -1,5 +1,5 @@
 #!/bin/bash
-#author: ywz
+#author: https://blogtest.alexcld.com https://vue.alexcld.com https://blog.csdn.net/weixin_45509582
 #"---------"包括这部分是unmount操作可以注释掉，如果不需要交互则将disk取消注释，Step3以上全部注释即可
 #disk=/dev/vda
 echo -e "\e[1;42mDisk partion scripts!!!!!\e[0m"
