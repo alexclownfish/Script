@@ -3,3 +3,20 @@
 ## 具体实现
 openstack vm镜像需要提前安装好node_exporter并加入开机自启，此程序也是如此，通过平台调用openstack接口拉起vm的时候，prometheus端就可以直接监控到对应vm
 ## 所用到的库
+```
+	"fmt"
+	"net"
+	"os"
+	"strconv"
+	"time"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/spf13/viper"
+
+	"github.com/hashicorp/consul/api"
+	"github.com/wonderivan/logger"
+```
+## 构建
+```
+ go build -o regconsul main.go
+```
