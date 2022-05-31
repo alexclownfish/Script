@@ -1,0 +1,9 @@
+consulAddress: "172.22.254.86:8500"
+local_port: 9100
+#web_url: "0.0.0.0:30020"
+#web_prefix: "/ywz"
+registrationID: "30051"
+registrationTags:
+  - "prometheus1-30051"
+  - "prometheus2-30052"
+  - "prometheus3-30053"
