@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
-	"os"
+	//"os"
 	"strconv"
 	"time"
 
@@ -40,7 +40,7 @@ func getLocalIP() (ipv4 string, err error) {
 func consulRegister() (err error) {
 	//获取localip localhostname
 	Local_IP, _ := getLocalIP()
-	hostname, err := os.Hostname()
+	//hostname, err := os.Hostname()
 	if err != nil {
 		logger.Error("获取hostname失败，" + err.Error())
 		return
@@ -55,7 +55,7 @@ func consulRegister() (err error) {
 	// 创建注册到consul的服务到
 	registration := new(api.AgentServiceRegistration)
 	registration.ID = viper.GetString("registrationID")
-	registration.Name = hostname
+	registration.Name = viper.GetString("registrationName")
 	registration.Port = viper.GetInt("local_port")
 	registration.Tags = viper.GetStringSlice("registrationTags")
 	registration.Address = Local_IP
