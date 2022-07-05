@@ -77,11 +77,6 @@ func consulRegister() (err error) {
 	logger.Info("registration.ID：" + registration.ID)
 	logger.Info("registration.Name：" + registration.Name)
 	logger.Info("registration.Port：" + strconv.Itoa(registration.Port))
-	//var Tags []string
-	//for _, v := range registration.Tags {
-	//	tags := v
-	//	Tags = append(Tags, tags)
-	//}
 	logger.Info("registration.Tags：", registration.Tags)
 	logger.Info("registration.Address：" + registration.Address)
 	logger.Info(Service_IP + ":" + strconv.Itoa(9090) + "已完成注册")
