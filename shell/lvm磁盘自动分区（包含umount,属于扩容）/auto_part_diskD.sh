@@ -12,11 +12,11 @@ echo -e "\e[1;42mStep2: Parting the disks....\e[0m"
 echo "
      n
      p
-      
-      
-      
+
+
+
      t
-      
+
      8e
      w" | fdisk $Disk &> /dev/null
 partprobe &> /dev/null
@@ -25,6 +25,6 @@ sleep 3
 echo -e "\e[1;42mStep3: Formating disks....\e[0m"
 pvcreate $DiskName &> /dev/null
 vgextend centos $DiskName &> /dev/null
-lvextend GenDiskName $DiskName &> /dev/null
-xfs_growfs GenDiskName &> /dev/null
+lvextend $GenDiskName $DiskName &> /dev/null
+xfs_growfs $GenDiskName &> /dev/null
 echo -e "\e[1;32mFormat finished!!!!\e[0m"
