@@ -7,6 +7,7 @@ Total=`fdisk -l | grep "/dev/vda" | awk {'print $1'} | wc -l`
 NeedCount=`expr ${Total} - 1`
 DiskNum=`expr ${NeedCount} + 1`
 DiskName="$Disk$DiskNum"
+GenDiskName=`df -hT | grep root | awk {'print $1'}`
 echo -e "\e[1;42mStep2: Parting the disks....\e[0m"
 echo "
      n
@@ -24,6 +25,6 @@ sleep 3
 echo -e "\e[1;42mStep3: Formating disks....\e[0m"
 pvcreate $DiskName &> /dev/null
 vgextend centos $DiskName &> /dev/null
-lvextend /dev/centos/root $DiskName &> /dev/null
-xfs_growfs /dev/centos/root &> /dev/null
+lvextend GenDiskName $DiskName &> /dev/null
+xfs_growfs GenDiskName &> /dev/null
 echo -e "\e[1;32mFormat finished!!!!\e[0m"
