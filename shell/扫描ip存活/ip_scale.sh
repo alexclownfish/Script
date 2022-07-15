@@ -3,7 +3,7 @@ echo "ip存活扫描脚本，不活跃的ip被输入在本目录ip_down.txt文�
 sleep 1
 echo "      author by alex"
 
-echo "      site:https://alexcld.com"
+echo "      site:https://blog.alexcld.com"
 sleep 1
 echo "      Getting local network card, IP segment"
 sleep 1
