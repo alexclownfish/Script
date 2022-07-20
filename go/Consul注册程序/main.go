@@ -79,7 +79,7 @@ func consulRegister() (err error) {
 	logger.Info("registration.Port：" + strconv.Itoa(registration.Port))
 	logger.Info("registration.Tags：", registration.Tags)
 	logger.Info("registration.Address：" + registration.Address)
-	logger.Info(Service_IP + ":" + strconv.Itoa(9090) + "已完成注册")
+	logger.Info(Service_IP + ":" + strconv.Itoa(9100) + "已完成注册")
 	return nil
 }
 
