@@ -1,0 +1,11 @@
+
+
+
+curl -X PUT -d '{"id": "192.168.201.7","name": "physical-machine","address": "192.168.201.7","port": 9110,"checks": [{"http": "http://192.168.201.7:9110/metrics","interval": "5s"}]}' http://172.16.213.133:28500/v1/agent/service/register
+
+
+
+curl -X PUT http://172.16.213.133:28500/v1/agent/service/deregister/192.168.201.7
+
+
+ip a | grep 192.168.201. | awk '{print $2}' | cut -d "/" -f 1
