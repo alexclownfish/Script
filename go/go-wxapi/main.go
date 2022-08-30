@@ -17,7 +17,7 @@ var (
 	APPSECRET      = "08109283b680436fb9af185a677fb28c"
 	UserAppID      = "18518286"
 	UserAppSecret  = "Em8MNKmw"
-	WeatTemplateID = "rhBRKJcAmM0tHl8iARwfBxgzWmZoFbOxOvbYskMkix4" //天气模板ID，替换成自己的
+	WeatTemplateID = "QpPIrx2LCPB0oxSnseYvf7mx-TSeibhjcgL65QmdtLg" //天气模板ID，替换成自己的
 	WeatherVersion = "v1"
 )
 
@@ -51,18 +51,18 @@ func GetAccessToken() string {
 	return token.AccessToken
 }
 
-func GetWeather(city string) (string, string, string, string, error) {
+func GetWeather(city string) (string, string, string, string, string, error) {
 	url := fmt.Sprintf("https://www.tianqiapi.com/api?version=%s&city=%s&appid=%v&appsecret=%v", WeatherVersion, city, UserAppID, UserAppSecret)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Printf("读取内容失败：%s\n", err)
-		return "", "", "", "", err
+		return "", "", "", "", "", err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("读取内容失败：%s\n", err)
-		return "", "", "", "", err
+		return "", "", "", "", "", err
 	}
 	data := gjson.Get(string(body), "data").Array()
 	thisday := data[0].String()
@@ -70,7 +70,10 @@ func GetWeather(city string) (string, string, string, string, error) {
 	wea := gjson.Get(thisday, "wea").Str           //天气
 	tem := gjson.Get(thisday, "tem").Str           //平均气温
 	air_tips := gjson.Get(thisday, "air_tips").Str //提示
-	return day, wea, tem, air_tips, err
+	index := gjson.Get(thisday, "index").Array()
+	iop := index[4].String()
+	clothing_indicator := gjson.Get(iop, "desc").Str
+	return day, wea, tem, air_tips, clothing_indicator, err
 }
 
 //获取关注者列表
@@ -117,16 +120,16 @@ func templatepost(access_token string, reqdata string, fxurl string, templateid 
 
 //发送天气
 func SendWeather(access_token, city, openid string) {
-	day, wea, tem, air_tips, err := GetWeather(city)
+	day, wea, tem, air_tips, clothing_indicator, err := GetWeather(city)
 	if err != nil {
 		log.Printf("Get Weather failed：%s\n", err)
 	}
 	log.Println(day, wea, tem, air_tips)
-	if day == "" || wea == "" || tem == "" || air_tips == "" {
+	if day == "" || wea == "" || tem == "" || air_tips == "" || clothing_indicator == "" {
 		log.Printf("获取天气信息失败\n")
 		return
 	}
-	reqdata := "{\"city\":{\"value\":\"城市：" + city + "\", \"color\":\"#0000CD\"}, \"day\":{\"value\":\"" + day + "\"}, \"wea\":{\"value\":\"天气：" + wea + "\"}, \"tem1\":{\"value\":\"平均温度：" + tem + "\"}, \"air_tips\":{\"value\":\"tips：" + air_tips + "\"}}"
+	reqdata := "{\"city\":{\"value\":\"城市：" + city + "\", \"color\":\"#0000CD\"}, \"day\":{\"value\":\"" + day + "\"}, \"wea\":{\"value\":\"天气：" + wea + "\"}, \"tem1\":{\"value\":\"平均温度：" + tem + "\"},\"clothing_indicator1\":{\"value\":\"穿衣指数：" + clothing_indicator + "\"}, \"air_tips\":{\"value\":\"tips：" + air_tips + "\"}}"
 	templatepost(access_token, reqdata, "https://blogtest.alexcld.com", WeatTemplateID, openid)
 }
 
