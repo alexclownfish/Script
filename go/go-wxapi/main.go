@@ -17,7 +17,7 @@ var (
 	APPSECRET      = "08109283b680436fb9af185a677fb28c"
 	UserAppID      = "18518286"
 	UserAppSecret  = "Em8MNKmw"
-	WeatTemplateID = "QpPIrx2LCPB0oxSnseYvf7mx-TSeibhjcgL65QmdtLg" //天气模板ID，替换成自己的
+	WeatTemplateID = "emqjBE9tuRYwBOPvcGnRwVXxJ-7Z6xB2eO7DVXzg6pc" //天气模板ID，替换成自己的
 	WeatherVersion = "v1"
 )
 
@@ -72,7 +72,7 @@ func GetWeather(city string) (string, string, string, string, string, error) {
 	air_tips := gjson.Get(thisday, "air_tips").Str //提示
 	index := gjson.Get(thisday, "index").Array()
 	iop := index[4].String()
-	clothing_indicator := gjson.Get(iop, "desc").Str
+	clothing_indicator := gjson.Get(iop, "desc").Str //穿衣指数
 	return day, wea, tem, air_tips, clothing_indicator, err
 }
 
@@ -144,7 +144,7 @@ func Weather() {
 	if flist == nil {
 		return
 	}
-	log.Println(flist)
+	log.Printf("用户列表：%v\n", flist)
 	var city string
 	for _, v := range flist {
 		switch v.Str {
@@ -173,7 +173,7 @@ func Weather() {
 
 func main() {
 	times := time.Now().Format("2006-01-02 15:04:05")
-	log.Printf("当前时间: %v", times)
+	log.Printf("启动时间: %v", times)
 	spec := "0 0 7 * * *" // 每天早上七点
 	c := cron.New()
 	c.AddFunc(spec, Weather)
