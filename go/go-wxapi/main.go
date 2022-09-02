@@ -12,7 +12,7 @@ func main() {
 	tools.ViperConfigFile()
 	times := time.Now().Format("2006-01-02 15:04:05")
 	log.Printf("启动时间: %v", times)
-	spec := "0/1 * * * * *" // 每天早上七点
+	spec := "0 0 7 * * *" // 每天早上七点
 	c := cron.New()
 	c.AddFunc(spec, weather.Weather)
 	c.Start()
