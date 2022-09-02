@@ -150,8 +150,8 @@ func Weather() {
 			city = "上海"
 			go SendWeather(access_token, city, v.Str)
 			log.Printf("发送%s天气给%s成功\n", city, v.Str)
-		case "oJkd76HVlNQfE2lMHXDikWh38kqQ":
-			city = "洛阳"
+		case "oJkd76BBMyfcjrX1m9T2MjKTyJfk":
+			city = "伊川"
 			go SendWeather(access_token, city, v.Str)
 			log.Printf("发送%s天气给%s成功\n", city, v.Str)
 		default:
