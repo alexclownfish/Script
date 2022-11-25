@@ -134,6 +134,7 @@ func Weather() {
 	if flist == nil {
 		return
 	}
+	log.Println(access_token)
 	log.Printf("用户列表：%v\n", flist)
 	var city string
 	for _, v := range flist {
