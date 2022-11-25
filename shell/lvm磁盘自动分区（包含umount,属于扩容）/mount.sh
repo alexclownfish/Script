@@ -52,28 +52,36 @@ else
     echo -e "pvcreate fail" >> $LogDir
     exit 1
 fi
+
 vgextend centos $DiskName &>> $LogDir
+
 if [ $? -eq 0 ]; then
     echo -e "vgextend successful" >> $LogDir
 else
     echo -e "vgextend fail" >> $LogDir
     exit 1
 fi
+
 lvextend $GenDiskName $DiskName &>> $LogDir
+
 if [ $? -eq 0 ]; then
     echo -e "lvextend successful" >> $LogDir
 else
     echo -e "lvextend fail" >> $LogDir
     exit 1
 fi
+
 xfs_growfs $GenDiskName &>> $LogDir
+
 if [ $? -eq 0 ]; then
     echo -e "xfs_growfs successful" >> $LogDir
 else
     echo -e "xfs_growfs fail" >> $LogDir
     exit 1
 fi
+
 sed -i '/mount/d' /etc/rc.local
+
 if [ $? -eq 0 ]; then
     echo -e "remove scripts successful" >> $LogDir
 else
